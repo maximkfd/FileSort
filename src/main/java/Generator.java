@@ -14,12 +14,13 @@ public class Generator {
         final BufferedWriter writer = Files.newBufferedWriter(Paths.get(filename));
 
         for (int i = 0; i < rows; i++) {
-            final String row = RandomStringUtils.randomAlphanumeric((int) (1024*1024*1024/rows));
+            final String row = RandomStringUtils.randomAlphanumeric((int) (1024*1024*100/rows));
             writer.write(row);
             writer.newLine();
         }
 
         writer.close();
+        System.out.println("Done!");
     }
 
     public static void main(final String[] args) throws IOException {
