@@ -19,22 +19,27 @@ public class Main {
         File result = new File("res");
         int k = 0;
         while (reader.ready()) {
-            System.gc();
+//            System.gc();
+            list = new ArrayList<>();
 
             long size = 0;
             //Читаем кусок из 1gb файла
-            list = new ArrayList<>();
-            while (reader.ready() &&  runtime.freeMemory() > runtime.totalMemory() - runtime.freeMemory()) {
-                list.add(reader.readLine());
+//            while (reader.ready() &&  runtime.freeMemory() > runtime.totalMemory() - runtime.freeMemory()) {
+            while (reader.ready() &&  size < 32000000) {
+                final String tmp = reader.readLine();
+                size += tmp.getBytes().length;
+                list.add(tmp);
+//                list.add(reader.readLine());
             }
             list.sort(null);
-
+            System.out.println("read " + size + " bytes");
             if (sortedFileIn.length() == 0) {
                 //Создаём временный файл из первой партии строк
                 BufferedWriter out = new BufferedWriter(new FileWriter(sortedFileIn));
                 for (String s :
                         list) {
-                    out.write(s + "\r\n");
+                    out.write(s);
+                    out.newLine();
                 }
 //                out.writeObject("Holy fuck");
                 out.close();
@@ -45,7 +50,7 @@ public class Main {
                 String tmp = null;
                 int i = 0;
                 tmp = in.readLine();
-                
+
                 while (i < list.size() && in.ready()) {
                     if (list.get(i).compareTo(tmp) < 0) {
                         out.write(list.get(i++) + "\r\n");
@@ -88,4 +93,5 @@ public class Main {
 
         System.out.println(System.currentTimeMillis() - begin);
     }
+
 }
