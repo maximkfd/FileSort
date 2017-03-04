@@ -100,10 +100,4 @@ public class Sorter {
 
         System.out.println(System.currentTimeMillis() - begin);
     }
-
-
-    public static void main(final String[] args) throws IOException {
-        final Sorter s = new Sorter();
-        s.sort("input.txt");
-    }
 }
