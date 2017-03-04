@@ -1,27 +1,39 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 
-public class Main {
+/**
+ * @author Denis.Repp
+ */
+public class Sorter {
 
-    public static void main(String[] args) throws Exception {
-
-        Runtime runtime = Runtime.getRuntime();
-        long begin = System.currentTimeMillis();
+    public void sort(final String filename) throws IOException {
+        final Runtime runtime = Runtime.getRuntime();
+        final long begin = System.currentTimeMillis();
 
         System.out.println(Runtime.getRuntime().totalMemory() + ":  " + Runtime.getRuntime().freeMemory());
-        BufferedReader reader = new BufferedReader(new FileReader("file2"));
+        final BufferedReader reader = new BufferedReader(new FileReader(filename));
         //прочитать несколько строк
         ArrayList<String> list;
 
-        File sortedFileIn = File.createTempFile("to read", null);
-        File sortedFile = File.createTempFile("to write", null);
-        File result = new File("res");
+        final File sortedFileIn = File.createTempFile("to read", null);
+        final File sortedFile = File.createTempFile("to write", null);
+        final File result = new File("res");
+        // fix 1
+        if (!result.exists()) {
+            result.createNewFile();
+        }
+        // fix1 end
         int k = 0;
         while (reader.ready()) {
             System.gc();
 
-            long size = 0;
+            final long size = 0;
             //Читаем кусок из 1gb файла
             list = new ArrayList<>();
             while (reader.ready() &&  runtime.freeMemory() > runtime.totalMemory() - runtime.freeMemory()) {
@@ -31,8 +43,8 @@ public class Main {
 
             if (sortedFileIn.length() == 0) {
                 //Создаём временный файл из первой партии строк
-                BufferedWriter out = new BufferedWriter(new FileWriter(sortedFileIn));
-                for (String s :
+                final BufferedWriter out = new BufferedWriter(new FileWriter(sortedFileIn));
+                for (final String s :
                         list) {
                     out.write(s + "\r\n");
                 }
@@ -40,12 +52,12 @@ public class Main {
                 out.close();
             } else {
                 //Сливаем с отсортированным временным файлом в другой временный файл
-                BufferedReader in = new BufferedReader(new FileReader(sortedFileIn));
-                BufferedWriter out = new BufferedWriter(new FileWriter(sortedFile));
+                final BufferedReader in = new BufferedReader(new FileReader(sortedFileIn));
+                final BufferedWriter out = new BufferedWriter(new FileWriter(sortedFile));
                 String tmp = null;
                 int i = 0;
                 tmp = in.readLine();
-                
+
                 while (i < list.size() && in.ready()) {
                     if (list.get(i).compareTo(tmp) < 0) {
                         out.write(list.get(i++) + "\r\n");
@@ -67,8 +79,8 @@ public class Main {
                 out.close();
                 in.close();
                 //меняем файлы местами
-                boolean delete = sortedFileIn.delete();
-                boolean rename = sortedFile.renameTo(sortedFileIn);
+                final boolean delete = sortedFileIn.delete();
+                final boolean rename = sortedFile.renameTo(sortedFileIn);
 
             }
             k += list.size();
@@ -76,16 +88,22 @@ public class Main {
         //перемещаем временный файл в ответ
         try {
             Files.delete(result.toPath());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
         Files.move(sortedFileIn.toPath(), result.toPath());
         try {
             sortedFileIn.delete();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
 
         System.out.println(System.currentTimeMillis() - begin);
+    }
+
+
+    public static void main(final String[] args) throws IOException {
+        final Sorter s = new Sorter();
+        s.sort("input.txt");
     }
 }
